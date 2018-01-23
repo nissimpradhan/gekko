@@ -235,6 +235,36 @@ Base.prototype.propogateTick = function(candle) {
   }
   this.processedTicks++;
 
+ // emit for UI
+  if (this.tickResult) {
+    cp.strategyResult({
+      name: this.name,
+      date: candle.start,
+      result: this.tickResult
+    });
+  }
+
+  _.each(this.indicators, (indicator, name) => {
+    cp.indicatorResult({
+      name,
+      type: indicator.type,
+      talib: false,
+      date: candle.start,
+      result: indicator.result
+    });
+  })
+
+  _.each(this.talibIndicators, (talibIndicator, name) => {
+    // console.log('talibIndicator', talibIndicator)
+    cp.indicatorResult({
+      name,
+      talib: true,
+      type: talibIndicator.type,
+      date: candle.start,
+      result: talibIndicator.result
+    });
+  })
+
   if(
     this.asyncTick &&
     this.hasSyncIndicators &&
@@ -271,6 +301,7 @@ Base.prototype.addTalibIndicator = function(name, type, parameters) {
   var basectx = this;
 
   this.talibIndicators[name] = {
+    type,
     run: talib[type].create(parameters),
     result: NaN
   }
@@ -302,6 +333,7 @@ Base.prototype.addIndicator = function(name, type, parameters) {
     util.die('Can only add indicators in the init method!');
 
   this.indicators[name] = new Indicators[type](parameters);
+  this.indicators[name].type = type;
 
   // some indicators need a price stream, others need full candles
 }

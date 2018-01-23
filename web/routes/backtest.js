@@ -38,6 +38,9 @@ module.exports = function *() {
   if(!req.data.indicatorResults)
     delete result.indicatorResults;
 
+  if(!req.data.strategyResults)
+    delete result.strategyResults;
+
   if(!req.data.trades)
     delete result.trades;
 

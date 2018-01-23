@@ -83,7 +83,10 @@ stop.check = function(candle) {
   }
 
   if (price <= this.loss) {
-    log.info('🔥 Stop Loss reached! Going short');
+    log.info('🔥 Stop Loss reached! Going short at ', price);
+    log.info('Trend:', this.trend);
+    this.trend.direction = "none";
+    this.trend.adviced = true;
     this.advice('short');
     this.loss = -1;
     return;

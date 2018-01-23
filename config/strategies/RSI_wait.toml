@@ -1,0 +1,21 @@
+interval = 14
+
+[thresholds]
+low = 38
+high = 62
+persistence = 3
+
+[stop]
+loss = 0.08
+type = 'trailing'
+
+# use candle size 5 min
+
+
+[macd]
+short = 10
+long = 21
+signal = 9
+down = -0.025
+up = 0.025
+persistence = 1

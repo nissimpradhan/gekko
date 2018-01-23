@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 // listen to all messages and internally queue
 // all candles and trades, when done report them
 // all back at once
@@ -10,6 +12,7 @@ module.exports = done => {
   var candles = [];
   var report = false;
   var indicatorResults = {};
+  var strategyResults = {};
 
   return {
     message: message => {
@@ -30,12 +33,30 @@ module.exports = done => {
         console.log(message.log);
 
       else if(message.type === 'indicatorResult') {
-        if(!_.has(indicatorResults, message.indicatorResult.name))
-          indicatorResults[message.indicatorResult.name] = [];
+        // console.log('indicatorResult', message.indicatorResult)
+        if(!_.has(indicatorResults, message.indicatorResult.name)) {
+          indicatorResults[message.indicatorResult.name] = {
+            type: message.indicatorResult.type,
+            talib: !!message.indicatorResult.talib,
+            data: []
+          };
+        }
 
-        indicatorResults[message.indicatorResult.name].push({
+        indicatorResults[message.indicatorResult.name].data.push({
           result: message.indicatorResult.result,
           date: message.indicatorResult.date
+        });
+
+      } else if(message.type === 'strategyResult') {
+        if(!_.has(strategyResults, message.strategyResult.name)) {
+          strategyResults[message.strategyResult.name] = {
+            data: []
+          };
+        }
+
+        strategyResults[message.strategyResult.name].data.push({
+          result: message.strategyResult.result,
+          date: message.strategyResult.date
         });
       }
     },
@@ -49,7 +70,8 @@ module.exports = done => {
           candles,
           report,
           roundtrips,
-          indicatorResults
+          indicatorResults,
+          strategyResults
         });
     }
   }
