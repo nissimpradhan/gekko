@@ -250,7 +250,9 @@ Base.prototype.propogateTick = function(candle) {
       type: indicator.type,
       talib: false,
       date: candle.start,
-      result: indicator.result
+      result: indicator.result,
+      data: indicator,
+      params: indicator.config
     });
   })
 
@@ -274,13 +276,13 @@ Base.prototype.propogateTick = function(candle) {
   }
 
   // emit for UI
-  _.each(this.indicators, (indicator, name) => {
-    cp.indicatorResult({
-      name,
-      date: candle.start,
-      result: indicator.result
-    });
-  })
+  // _.each(this.indicators, (indicator, name) => {
+  //   cp.indicatorResult({
+  //     name,
+  //     date: candle.start,
+  //     result: indicator.result
+  //   });
+  // })
 
   // are we totally finished?
   var done = this.age === this.processedTicks;

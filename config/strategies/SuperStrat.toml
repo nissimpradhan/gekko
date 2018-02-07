@@ -19,10 +19,3 @@ signal = 9
 down = -0.02
 up = 0.02
 persistence = 6
-
-[stochrsi]
-interval = 3
-rsi_interval = 14
-low = 20
-high = 80
-persistence = 3

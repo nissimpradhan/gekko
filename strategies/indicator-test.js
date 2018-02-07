@@ -22,40 +22,40 @@ strat.init = function() {
   this.requiredHistory = config.tradingAdvisor.historySize;
   console.log('indicator-test init. settings:', settings)
 
-  this.addTalibIndicator('talibDema', 'dema', {
-    optInTimePeriod: settings.talibDema
-  });
-
   this.addIndicator('dema', 'DEMA', {
     short: settings.demaShort,
     long: settings.demaLong
   });
 
-  this.addIndicator('ema', 'EMA', settings.emaWeight);
-  this.addIndicator('sma', 'SMA', settings.smaWeight);
+  this.addIndicator('rsi', 'RSI', config.RSI);
+  this.addIndicator('macd', 'MACD', config.MACD);
+
+  //this.addIndicator('ema', 'EMA', settings.emaWeight);
+  //this.addIndicator('sma', 'SMA', settings.smaWeight);
 }
 
 // What happens on every new candle?
 strat.update = function(candle) {
-
+  this.indicators.rsi.config = config.RSI;
   // // Get a random number between 0 and 1.
-  // this.randomNumber = Math.random();
+   this.randomNumber = Math.random();
 
   // // There is a 10% chance it is smaller than 0.1
-  // this.toUpdate = this.randomNumber < 0.1;
+   this.toUpdate = this.randomNumber < 0.1;
 }
 
 // For debugging purposes.
 strat.log = function() {
-  log.debug('calculated random number:');
-  log.debug('\t', this.randomNumber.toFixed(3));
+  //log.debug('calculated random number:');
+  //log.debug('\t', this.randomNumber.toFixed(3));
 }
 
 // Based on the newly calculated
 // information, check if we should
 // update or not.
 strat.check = function() {
-
+  //var rsi = this.indicators.rsi;
+  //log.info("RSI",rsi.config)
   // Only continue if we have a new update.
   if(!this.toUpdate)
     return;

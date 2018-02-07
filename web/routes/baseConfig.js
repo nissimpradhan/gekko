@@ -91,9 +91,26 @@ config.importer = {
   }
 }
 
+// MACD settings:
+config.MACD = {
+  // EMA weight (α)
+  // the higher the weight, the more smooth (and delayed) the line
+  short: 10,
+  long: 21,
+  signal: 9,
+  // the difference between the EMAs (to act as triggers)
+  thresholds: {
+    down: -0.025,
+    up: 0.025,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
+
 // PPO settings:
 config.PPO = {
-  // EMA weight (α)
+// EMA weight (α)
   // the higher the weight, the more smooth (and delayed) the line
   short: 12,
   long: 26,

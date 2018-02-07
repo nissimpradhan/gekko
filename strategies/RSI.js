@@ -42,6 +42,9 @@ method.log = function(candle) {
   log.debug('\t', 'price:', candle.close.toFixed(digits));
 }
 
+method.update = function(candle) {
+  this.indicators.rsi.config = this.settings;
+}
 method.check = function(candle) {
   var rsi = this.indicators.rsi;
   var rsiVal = rsi.result;

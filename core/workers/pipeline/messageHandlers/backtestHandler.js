@@ -16,9 +16,10 @@ module.exports = done => {
 
   return {
     message: message => {
-
-      if(message.type === 'candle')
+      
+      if(message.type === 'candle'){
         candles.push(message.candle);
+      }
 
       else if(message.type === 'trade')
         trades.push(message.trade);
@@ -33,20 +34,32 @@ module.exports = done => {
         console.log(message.log);
 
       else if(message.type === 'indicatorResult') {
-        // console.log('indicatorResult', message.indicatorResult)
+         //console.log('indicatorResult', message.indicatorResult)
+         //console.log('dataDiff', message.indicatorResult.data.diff)
+         
         if(!_.has(indicatorResults, message.indicatorResult.name)) {
           indicatorResults[message.indicatorResult.name] = {
             type: message.indicatorResult.type,
             talib: !!message.indicatorResult.talib,
-            data: []
+            data: [],
+            params: message.indicatorResult.params
           };
         }
-
-        indicatorResults[message.indicatorResult.name].data.push({
-          result: message.indicatorResult.result,
-          date: message.indicatorResult.date
-        });
-
+        if(message.indicatorResult.name == "macd" &&  message.indicatorResult.data != undefined){
+          indicatorResults[message.indicatorResult.name].data.push({
+            result: message.indicatorResult.result,
+            diff: message.indicatorResult.data.diff,
+            signal: message.indicatorResult.data.signal.result,
+            ma: message.indicatorResult.data.long.result,
+            date: message.indicatorResult.date
+          });
+        } else {
+          indicatorResults[message.indicatorResult.name].data.push({
+            result: message.indicatorResult.result,
+            date: message.indicatorResult.date
+          });
+        }
+        
       } else if(message.type === 'strategyResult') {
         if(!_.has(strategyResults, message.strategyResult.name)) {
           strategyResults[message.strategyResult.name] = {

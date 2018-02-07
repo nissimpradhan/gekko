@@ -36,6 +36,7 @@ stop.init = function() {
     });
   }
 
+  this.addIndicator('stoploss', 'STOPLOSS', {});
   // init the strategy
   if (this.strategy_init) {
     this.strategy_init();
@@ -46,6 +47,23 @@ stop.init = function() {
 stop.update = function(candle) {
   if (this.strategy_update) {
     this.strategy_update(candle);
+  }
+  if (this.loss !== -1) {
+    //log.info('Active ' + this.stoploss.type + ' Stop Loss at ' + this.loss);
+  
+    // stop loss enabled
+    var price = candle.close;
+      
+    if (this.stoploss.type === 'trailing') {
+      var newLoss = price - (price * this.stoploss.percentage);
+      if (this.loss < newLoss) {
+        this.loss = newLoss;
+      }
+    }
+
+    if (price <= this.loss) {
+      this.indicators.stoploss.result = true;
+    }
   }
 }
 
@@ -84,9 +102,9 @@ stop.check = function(candle) {
 
   if (price <= this.loss) {
     log.info('🔥 Stop Loss reached! Going short at ', price);
-    log.info('Trend:', this.trend);
+    //log.info('Trend:', this.trend);
     this.trend.direction = "none";
-    this.trend.adviced = true;
+    //this.trend.adviced = true;
     this.advice('short');
     this.loss = -1;
     return;

@@ -54,7 +54,6 @@ resetTrendTracking = (ref, lastRSI)=>{
     duration: 0,//rsi > 50
     lastRSI: ref.trendtracking == undefined? 0:ref.trendtracking.lastRSI,
     blips: 0,
-    blipsCount: 0,
     highExtended:false,
     lowExtended:false,
     trend: "none",//bull,bear
@@ -80,7 +79,6 @@ method.init = function() {
   this.addIndicator('macd', 'MACD', this.settings.macd);
 
   this.addIndicator('info', 'INFO', {});
-  this.addIndicator('stochrsi', 'STOCHRSI', this.settings.stochrsi);
 
   //this.addIndicator('ema', 'EMA', settings.emaWeight);
   //this.addIndicator('sma', 'SMA', settings.smaWeight);
@@ -94,17 +92,16 @@ method.init = function() {
 method.update = function(candle) {
   this.indicators.rsi.config = this.settings;
   var rsi = this.indicators.rsi;
-  var stochrsi = this.indicators.stochrsi;
   var macd = this.indicators.macd;
   
   if(rsi.result == 0){
     return;
   }
   //console.log("This:",this);
-  rsiStrat(this,candle,stochrsi,macd);
+  rsiStrat(this,candle,rsi,macd);
   macdStrat(this,candle,macd,rsi);
   //hodlStrat(this,candle,macd,rsi);
-  //hodlStratNew(this,candle,macd,rsi);
+  hodlStratNew(this,candle,macd,rsi);
 }
 
 // for debugging purposes log the last
@@ -124,18 +121,6 @@ method.check = function(candle) {
 logHodl = function(candle,ref){
   log.info(candle.start.format() +' --[HODL]--> | Duration: '+ref.trendtracking.duration+'| blips: '+ref.trendtracking.blips+'| trend:  ',ref.trendtracking.trend);
 }
-//1,1,25
-canReset = function(blipCount,duration,trend_period){
-  if(duration < trend_period){//t
-    if(blipCount >= 3)//f
-      return true;
-    else 
-      return false;//f
-  } else {
-    return canReset(blipCount-2,duration-trend_period,trend_period)
-  }
-}
-
 hodlStratNew = (ref,candle,macd,rsi) => {
   if(rsi.result == 0)
     return;
@@ -144,15 +129,12 @@ hodlStratNew = (ref,candle,macd,rsi) => {
   const DIFFICULTY_DELTA = 8;
   const UPTREND_MIN = 55;
   const DOWNTREND_MAX = 45;
-  const TREND_PERIOD = 25;
   //logHodl(candle,ref);
   if(ref.trendtracking.duration > 0){
     if(rsi.result < UPTREND_MIN)
       ref.trendtracking.blips++
     else {
         ref.trendtracking.duration += 1 + ref.trendtracking.blips;
-        if(ref.trendtracking.blips > 0)
-          ref.trendtracking.blipsCount++;
         ref.trendtracking.blips = 0;
     }
   } else if(ref.trendtracking.duration < 0){
@@ -160,8 +142,6 @@ hodlStratNew = (ref,candle,macd,rsi) => {
       ref.trendtracking.blips++
     else {
       ref.trendtracking.duration -= 1 + ref.trendtracking.blips;
-      if(ref.trendtracking.blips > 0)
-        ref.trendtracking.blipsCount++;
       ref.trendtracking.blips = 0;
     }
   } else if(ref.trendtracking.duration == 0){
@@ -199,13 +179,13 @@ hodlStratNew = (ref,candle,macd,rsi) => {
           tooltip: 'Down trending... not yet a bear'
         });
   }
-  if(ref.trendtracking.duration > TREND_PERIOD){
+  
+  if(ref.trendtracking.duration > 25){
     ref.trendtracking.trend = "bull";
-  } else if(ref.trendtracking.duration < (-1 *TREND_PERIOD)){
+  } else if(ref.trendtracking.duration < -25){
     ref.trendtracking.trend = "bear";
   } else {
-    if(ref.trendtracking.trend == "bear" || ref.trendtracking.trend == "bull" 
-        || canReset(ref.trendtracking.blipCount,ref.trendtracking.duration,TREND_PERIOD)){
+    if(ref.trendtracking.trend == "bear" || ref.trendtracking.trend == "bull"){
       ref.indicators.info.result.push(
         { type:"strat-hodl",
           text:"►",
@@ -215,18 +195,18 @@ hodlStratNew = (ref,candle,macd,rsi) => {
     
     ref.trendtracking.trend = "none";
     if(ref.trendtracking.lowExtended){
-      ref.settings.thresholds.low += DIFFICULTY_DELTA;
+      ref.settings.thresholds.low += 10;
       ref.trendtracking.lowExtended = false;
     }
     if(ref.trendtracking.highExtended){
-      ref.settings.thresholds.high -= DIFFICULTY_DELTA;
+      ref.settings.thresholds.high -= 10;
       ref.trendtracking.highExtended = false;
     }
   }
 
   if(ref.trendtracking.trend =="bull") {
     //consistent uptrend is bullish so we buy during the right oppurtunity
-    if(rsi.result < 50 && ref.recommendation == 'short'){
+    if(rsi.result < 53 && ref.recommendation == 'short'){
       log.info(candle.start.format() +' --[HODL]--> Adviced Long: ', candle.close.toFixed(8),"after consistent uptrend for " + ref.trendtracking.duration + " at RSI:",rsi.result);
       ref.advice("long");
       ref.indicators.info.result.push(
@@ -248,7 +228,7 @@ hodlStratNew = (ref,candle,macd,rsi) => {
       //▲▼↓↑↕✓✘
     }
   } else  if (ref.trendtracking.trend == "bear"){
-    if(rsi.result > 50 && ref.recommendation == 'long'){
+    if(rsi.result > 47 && ref.recommendation == 'long'){
       log.info(candle.start.format() +' --[HODL]--> Adviced Short: ', candle.close.toFixed(8),"after consistent downtrend for " + ref.trendtracking.duration + " at RSI:",rsi.result);
       ref.advice("short");
       ref.indicators.info.result.push(
@@ -340,7 +320,7 @@ hodlStrat = (ref,candle,macd,rsi) => {
     }
     if(!ref.trendtracking.highExtended){
       ref.trendtracking.highExtended = true
-      ref.settings.thresholds.high += DIFFICULTY_DELTA;
+      ref.settings.thresholds.high += 10;
       log.info(candle.start.format() +' --[HODL]--> HIGH has been extended to: ',ref.settings.thresholds.high);
       ref.indicators.info.result.push(
         { type:"strat-hodl",
@@ -353,7 +333,7 @@ hodlStrat = (ref,candle,macd,rsi) => {
   if(ref.trendtracking.bearDuration > 25){
     if(!ref.trendtracking.lowExtended){
       ref.trendtracking.lowExtended = true
-      ref.settings.thresholds.low -= DIFFICULTY_DELTA;
+      ref.settings.thresholds.low -= 10;
       log.info(candle.start.format() +' --[HODL]--> LOW has been extended to: ',ref.settings.thresholds.low);
       ref.indicators.info.result.push(
         { type:"strat-hodl",
@@ -445,13 +425,11 @@ macdStrat = (ref,candle,macd,rsi) => {
 rsiStrat = (ref,candle, rsi, macd) => {
   //console.log("This inside:",this);
   var rsiVal = rsi.result; 
-
-  var DIFF_FOR_REVERSAL = 30;
   if(ref.trend.rsi.preAdvice == "buy" || ref.trend.rsi.preAdvice == "sell"){
     return;
   }
   var rsiDiff = rsiVal - ref.trend.rsi.lastRSI;
-  if(ref.recommendation != "short" && ref.trend.rsi.direction == 'high'  && rsiDiff < (-1 * DIFF_FOR_REVERSAL)){
+  if(ref.recommendation != "short" && ref.trend.rsi.direction == 'high'  && rsiDiff > -3){
     // check if RSI change direction and make sure it's not very little change.... 
     // very little change implies it's still increasing, and will miss out on huge profits
     ref.trend.rsi.trendReversed = true;
@@ -463,7 +441,7 @@ rsiStrat = (ref,candle, rsi, macd) => {
       });
   }
 
-  if(ref.trend.rsi.direction == 'low'  && rsiDiff > DIFF_FOR_REVERSAL){
+  if(ref.trend.rsi.direction == 'low'  && rsiDiff > 3){
     ref.trend.rsi.trendReversed = true;
     log.info(candle.start.format() +' Low Trend Reverse Confirmed at candle!'+ ref.trend.rsi.duration + '!');
     ref.indicators.info.result.push(
@@ -491,7 +469,7 @@ rsiStrat = (ref,candle, rsi, macd) => {
     ref.indicators.info.result.push(
       { type:"strat-rsi",
         text:"↑ "+ref.trend.rsi.duration,
-        tooltip: "High Since [<"+ref.settings.thresholds.high+"] "+ ref.trend.rsi.duration + "candles"
+        tooltip: "High Since [<"+ref.settings.thresholds.high+"] "+ ref.trend.rsi.duration + "candles RSI:"+rsi.result
       });
 
     if(ref.trend.rsi.preAdvice != "buy" && ref.trend.rsi.preAdvice !="sell") {
@@ -535,7 +513,7 @@ rsiStrat = (ref,candle, rsi, macd) => {
     ref.indicators.info.result.push(
       { type:"strat-rsi",
         text:"↓ "+ref.trend.rsi.duration,
-        tooltip: "Low Since [<"+ref.settings.thresholds.low+"] "+ ref.trend.rsi.duration + "candles"
+        tooltip: "Low Since [<"+ref.settings.thresholds.low+"] "+ ref.trend.rsi.duration + "candles RSI:"+rsi.result
       });
 
     if(ref.trend.rsi.preAdvice != "buy" && ref.trend.rsi.preAdvice !="sell") {
@@ -563,14 +541,14 @@ rsiStrat = (ref,candle, rsi, macd) => {
       //ref.advice();
     }
   } else if((ref.trend.rsi.direction == 'high' || ref.trend.rsi.direction == 'low')){
-    //Reset Trend
-    resetTrend(ref);
-    log.info(candle.start.format() +' \t Reset Trend as trend ended');
-    ref.indicators.info.result.push(
-      { type:"strat-rsi",
-        text:"↕ ✘",
-        tooltip: 'Trend Reset beacause it didnt get inverted strongly'
-      });
+    // Reset Trend
+    //resetTrend(ref);
+    // log.info(candle.start.format() +' \t Reset Trend as trend ended');
+    // ref.indicators.info.result.push(
+    //   { type:"strat-rsi",
+    //     text:"↕ ✘",
+    //     tooltip: 'Trend Reset beacause it didnt get inverted strongly'
+    //   });
   } else {
 
     log.debug('In no trend');
@@ -607,8 +585,7 @@ hasCrossedUnder = function(lastMacd , macd_percentage, up, down){
 }
 
 logRSI = function(rsi){
-  //return "RSI |u:" + rsi.u.toFixed(2) + "| d:" + rsi.d.toFixed(2) + "| rs" + rsi.rs.toFixed(2) + "| result:" + rsi.result.toFixed(2);
-  return "RSI |min:" + rsi.lowestRSI.toFixed(2) + "| max:" + rsi.highestRSI.toFixed(2) + "| result:" + rsi.result.toFixed(2);
+  return "RSI |u:" + rsi.u.toFixed(2) + "| d:" + rsi.d.toFixed(2) + "| rs" + rsi.rs.toFixed(2) + "| result:" + rsi.result.toFixed(2);
 }
 
 module.exports = method;
