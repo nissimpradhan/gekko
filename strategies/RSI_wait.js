@@ -101,7 +101,8 @@ method.update = function(candle) {
     return;
   }
   //console.log("This:",this);
-  rsiStrat(this,candle,stochrsi,macd);
+  //rsiStrat(this,candle,stochrsi,macd);
+  rsiStrat(this,candle,rsi,macd);
   macdStrat(this,candle,macd,rsi);
   //hodlStrat(this,candle,macd,rsi);
   //hodlStratNew(this,candle,macd,rsi);
@@ -446,7 +447,7 @@ rsiStrat = (ref,candle, rsi, macd) => {
   //console.log("This inside:",this);
   var rsiVal = rsi.result; 
 
-  var DIFF_FOR_REVERSAL = 30;
+  var DIFF_FOR_REVERSAL = 3;//3 for RSI 25 for stochRSI
   if(ref.trend.rsi.preAdvice == "buy" || ref.trend.rsi.preAdvice == "sell"){
     return;
   }
@@ -607,8 +608,8 @@ hasCrossedUnder = function(lastMacd , macd_percentage, up, down){
 }
 
 logRSI = function(rsi){
-  //return "RSI |u:" + rsi.u.toFixed(2) + "| d:" + rsi.d.toFixed(2) + "| rs" + rsi.rs.toFixed(2) + "| result:" + rsi.result.toFixed(2);
-  return "RSI |min:" + rsi.lowestRSI.toFixed(2) + "| max:" + rsi.highestRSI.toFixed(2) + "| result:" + rsi.result.toFixed(2);
+  return "RSI |u:" + rsi.u.toFixed(2) + "| d:" + rsi.d.toFixed(2) + "| rs" + rsi.rs.toFixed(2) + "| result:" + rsi.result.toFixed(2);
+  //return "RSI |min:" + rsi.lowestRSI.toFixed(2) + "| max:" + rsi.highestRSI.toFixed(2) + "| result:" + rsi.result.toFixed(2);
 }
 
 module.exports = method;

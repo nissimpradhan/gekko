@@ -23,6 +23,10 @@ const indicatorResultMapFunctions = {
   'macd-diff': (res) => [moment(res.date).unix() * 1000, res.diff],
   'macd-signal': (res) => [moment(res.date).unix() * 1000, res.signal],
   'macd-percentage': (res) => [moment(res.date).unix() * 1000, (res.result/res.ma)*100],
+  'bbands-upper': (res) => [moment(res.date).unix() * 1000, res.result.outRealUpperBand],
+  'bbands-middle': (res) => [moment(res.date).unix() * 1000, res.result.outRealMiddleBand],
+  'bbands-lower': (res) => [moment(res.date).unix() * 1000, res.result.outRealLowerBand],
+  'bbands-close-percentage': (res) => [moment(res.date).unix() * 1000, res.result.percentageClose],
   default: (res) => [moment(res.date).unix() * 1000, res.result]
 }
 
@@ -153,10 +157,10 @@ export default {
       series: [{
         name: `${this.result.report.asset}-${this.result.report.currency}`,
         id: 'trades',
-        data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
-        //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.open, candle.high, candle.low, candle.close]),
-        color: colors[0]
-        //type: 'candlestick'
+        //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
+        data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.open, candle.high, candle.low, candle.close]),
+        color: colors[0],
+        type: 'candlestick'
       }
       // ,{
       //       type: 'macd',
@@ -322,6 +326,65 @@ export default {
             return array;
         },[]);
         console.log("Info Flags",infoFlags);
+      } else if(name == "bbands"){
+        // Add Indicator Series
+        chartOptions.series.push({
+          name: displayName,
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction("bbands-upper")),
+          yAxis: yAxisId,
+          lineWidth: 1,
+          color: color
+        })
+        chartOptions.series.push({
+          name: displayName,
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction("bbands-middle")),
+          yAxis: yAxisId,
+          lineWidth: 1,
+          color: color
+        })
+        chartOptions.series.push({
+          name: displayName,
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction("bbands-lower")),
+          yAxis: yAxisId,
+          lineWidth: 1,
+          color: color
+        })
+        //Add yAxis
+        primaryChartHeight -= 17;
+        var bband_yaxis = `y${chartOptions.yAxis.length}`;
+        chartOptions.yAxis.push({
+          id: bband_yaxis,
+          gridLineWidth: 0,
+          opposite: false,
+          top: primaryChartHeight+"%",
+          height: '17%',
+          title: {
+            text: displayName,
+            style: {
+              color: color
+            }
+          },
+          resize: {
+            enabled: true
+          },
+          plotLines: [{
+                value: name == "rsi" ? 50:0,
+                color: 'black',
+                dashStyle: 'solid',
+                width: 1,
+            }]
+        })
+        chartOptions.series.push({
+          name: displayName,
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction("bbands-close-percentage")),
+          yAxis: bband_yaxis,
+          lineWidth: 1,
+          color: color
+        })
       } else{
         // Add Indicator Series
         chartOptions.series.push({

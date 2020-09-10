@@ -43,6 +43,7 @@
     "BAT",
     "BCD",
     "BCPT",
+    "BLZ",
     "BRD",
     "BTG",
     "BTS",
@@ -989,6 +990,39 @@
       "pair": [
         "ETH",
         "BCPT"
+      ],
+      "minimalOrder": {
+        "amount": 1,
+        "price": 1e-8,
+        "order": 0.02
+      }
+    },
+    {
+      "pair": [
+        "BNB",
+        "BLZ"
+      ],
+      "minimalOrder": {
+        "amount": 0.01,
+        "price": 0.00001,
+        "order": 1
+      }
+    },
+    {
+      "pair": [
+        "BTC",
+        "BLZ"
+      ],
+      "minimalOrder": {
+        "amount": 1,
+        "price": 1e-8,
+        "order": 0.002
+      }
+    },
+    {
+      "pair": [
+        "ETH",
+        "BLZ"
       ],
       "minimalOrder": {
         "amount": 1,
