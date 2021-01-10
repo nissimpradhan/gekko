@@ -80,7 +80,7 @@ export default {
               stratUpdates: false,
               roundtrips: true,
               stratCandles: true,
-              stratCandleProps: ['open'],
+              // stratCandleProps: ['open'],
               trades: true
             }
           }
@@ -128,6 +128,7 @@ export default {
     },
     updateDataset: function(set) {
       this.dataset = set;
+      this.strat.tradingAdvisor.candleSize = this.dataset.candleSize
       this.$emit('config', this.config);
     },
     updateStrat: function(sc) {

@@ -1,4 +1,4 @@
-<template lang='jade'>
+<template lang='pug'>
 div
   div#resultHighchart
 </template>
@@ -130,7 +130,7 @@ export default {
         height: '100%',
         id: YAXIS_PRIMARY,
         title: {
-          text: `${this.result.report.asset}-${this.result.report.currency} Trades`,
+          text: `${this.result.performanceReport.asset}-${this.result.performanceReport.currency} Trades`,
           style: {
             color: colors[0]
           }
@@ -155,10 +155,10 @@ export default {
       ],
 
       series: [{
-        name: `${this.result.report.asset}-${this.result.report.currency}`,
+        name: `${this.result.performanceReport.asset}-${this.result.performanceReport.currency}`,
         id: 'trades',
         //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
-        data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.open, candle.high, candle.low, candle.close]),
+        data: this.result.stratCandles.map((candle) => [moment(candle.start).unix() * 1000, candle.open, candle.high, candle.low, candle.close]),
         color: colors[0],
         type: 'candlestick'
       }

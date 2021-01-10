@@ -25,29 +25,16 @@ module.exports = function *() {
 
   var req = this.request.body;
 
-  _.merge(config, base, req.gekkoConfig);
+  if(req.gekkoConfig){
+    // For access from highchart vue
+    _.merge(config, base, req.gekkoConfig);
+  } else {
+    // For access from normal gekko vue
+    _.merge(config, base, req);
+  }
+
 
   var result = yield pipelineRunner(mode, config);
-
-  if(!req.data.report)
-    delete result.report;
-
-  if(!req.data.roundtrips)
-    delete result.roundtrips;
-
-  if(!req.data.indicatorResults)
-    delete result.indicatorResults;
-
-  if(!req.data.strategyResults)
-    delete result.strategyResults;
-
-  if(!req.data.trades)
-    delete result.trades;
-
-  result.candles = _.map(
-    result.candles,
-    c => _.pick(c, req.data.candleProps)
-  );
 
   this.body = result;
 }

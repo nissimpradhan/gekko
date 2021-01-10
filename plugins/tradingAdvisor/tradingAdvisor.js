@@ -50,14 +50,14 @@ Actor.prototype.setupStrategy = function() {
   const WrappedStrategy = require('./baseTradingMethod');
 
   //var stoploss_activated = stoploss_factor && !isNaN(stoploss_factor);
-  var methodStop = config[this.methodName].stop !== undefined;
+  var strategyStop = config[this.strategyName].stop !== undefined;
 
   /**
 
    1. backtest
 
-   config[this.methodName].stop = 0.5
-   config[this.methodName].stop = {
+   config[this.strategyName].stop = 0.5
+   config[this.strategyName].stop = {
       loss: 0.1,
       type: 'fixed|trailing' (optional)
     }
@@ -69,21 +69,21 @@ Actor.prototype.setupStrategy = function() {
    type = config.stop.type
    */
 
-  var stoploss_activated = methodStop || config.stop.enabled || false;
+  var stoploss_activated = strategyStop || config.stop.enabled || false;
   var stoploss_percentage = config.stop.loss || 0;
 
   // using stop params from backtest
   // stop = 0.1
   // stop = { loss: 0.1 }
-  if (methodStop) {
-    stoploss_percentage = !isNaN(config[this.methodName].stop) ? config[this.methodName].stop : config[this.methodName].stop.loss;
+  if (strategyStop) {
+    stoploss_percentage = !isNaN(config[this.strategyName].stop) ? config[this.strategyName].stop : config[this.strategyName].stop.loss;
   }
 
-  var stoploss_type = methodStop && typeof config[this.methodName].stop === 'object' ? config[this.methodName].stop.type : (config.stop.type || 'fixed');
+  var stoploss_type = strategyStop && typeof config[this.strategyName].stop === 'object' ? config[this.strategyName].stop.type : (config.stop.type || 'fixed');
 
   // require stop loss proxy strategy
   var stopLoss = require(dirs.methods + 'stop-loss');
-  var owner = stoploss_activated ? stopLoss : method;
+  var owner = stoploss_activated ? stopLoss : strategy;
   _.each(strategy, function(fn, name) {
     WrappedStrategy.prototype[name] = fn;
   });
@@ -91,11 +91,11 @@ Actor.prototype.setupStrategy = function() {
   if (stoploss_activated) {
     log.info('\t', stoploss_type + ' Stop-Loss activated: ' + (stoploss_percentage * 100).toFixed(5) + '%');
 
-    _.each(method, function(fn, name) {
-      Consultant.prototype['strategy_' + name] = fn;
+    _.each(strategy, function(fn, name) {
+      WrappedStrategy.prototype['strategy_' + name] = fn;
     });
 
-    Consultant.prototype.stoploss = {
+    WrappedStrategy.prototype.stoploss = {
       percentage: stoploss_percentage,
       type: stoploss_type
     };
