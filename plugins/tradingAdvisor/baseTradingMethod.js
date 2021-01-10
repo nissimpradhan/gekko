@@ -4,6 +4,7 @@ const util = require('../../core/util');
 const config = util.getConfig();
 const dirs = util.dirs();
 const log = require(dirs.core + 'log');
+const cp = require(dirs.core + 'cp');
 
 const ENV = util.gekkoEnv();
 const mode = util.gekkoMode();
@@ -40,6 +41,7 @@ var Base = function(settings) {
   this.priceValue = 'close';
   this.indicators = {};
   this.asyncTick = false;
+  this.candlePropsCacheSize = 1000;
   this.deferredTicks = [];
 
   this.propogatedAdvices = 0;
@@ -179,7 +181,7 @@ Base.prototype.propogateTick = function(candle) {
   _.each(this.indicators, (indicator, name) => {
     indicators[name] = indicator.result;
   });
-  
+
   _.each(this.tulipIndicators, (indicator, name) => {
     indicators[name] = indicator.result.result
       ? indicator.result.result

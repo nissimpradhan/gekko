@@ -39,22 +39,33 @@ method.log = function(candle) {
   var digits = 8;
   var ppo = this.indicators.ppo.result;
   var result = ppo.ppo;
-  var signal = ppo.PPOsignal;
-  var hist = ppo.PPOhist;
-  var momentumResult = this.indicators[momentumName][momentumName];
+  var signal = ppo.PPOsignal.result;
+  var hist = result - signal;
+  
+  var momentumResult;
+  if(momentumName == "rsi"){
+    momentumResult = this.indicators[momentumName].result;
+  } else {
+    momentumResult = this.indicators[momentumName][momentumName];
+  }
 
-  log.debug('\t', 'PPO:', result.toFixed(digits));
-  log.debug('\t', 'PPOsignal:', signal.toFixed(digits));
-  log.debug('\t', 'PPOhist:', hist.toFixed(digits));
-  log.debug('\t', momentum + ':', momentumResult.toFixed(digits));
-  log.debug('\t', 'price:', candle.close.toFixed(digits));
+  log.debug('\t', 'PPO:', result.toFixed(digits),
+            '\t', 'PPOsignal:', signal.toFixed(digits),
+            '\t', 'PPOhist:', hist.toFixed(digits),
+            '\t', momentum + ':', momentumResult.toFixed(digits),
+            '\t', 'price:', candle.close.toFixed(digits));
 }
 
 method.check = function() {
   var ppo = this.indicators.ppo.result;
   var hist = ppo.PPOhist;
 
-  var value = this.indicators[momentumName][momentumName];
+  var value;
+  if(momentumName == "rsi"){
+    value = this.indicators[momentumName].result;
+  } else {
+    value = this.indicators[momentumName][momentumName];
+  }
 
   var thresholds = {
     low: momentumSettings.thresholds.low + hist * settings.thresholds.weightLow,

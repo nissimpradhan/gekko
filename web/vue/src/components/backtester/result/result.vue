@@ -1,9 +1,13 @@
-<template lang='pug'>
+<template lang='jade'>
   div
     .hr.contain
     div.contain
       h3 Backtest result
-    result-summary(:report='result.performanceReport')
+    result-summary(:report='result.report')
+    .hr.contain
+    backtestResultChart(:result='result')
+    .hr.contain
+    chart(:data='result', height='500')
     .hr.contain
     chart(:data='candles', height='500')
     .hr.contain
@@ -14,6 +18,7 @@
 import resultSummary from './summary.vue'
 import chart from './chartWrapper.vue'
 import roundtripTable from './roundtripTable.vue'
+import backtestResultChart from './backtestResultChart.vue'
 
 export default {
   props: ['result'],
@@ -24,7 +29,8 @@ export default {
   components: {
     roundtripTable,
     resultSummary,
-    chart
+    chart,
+    backtestResultChart
   },
   computed: {
     candles: function() {

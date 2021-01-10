@@ -32,6 +32,11 @@ config.tradingAdvisor = {
   historySize: 10,
 }
 
+config.stop = {
+  enabled: true,
+  loss: 0.1
+}
+
 // MACD settings:
 config.MACD = {
   // EMA weight (α)

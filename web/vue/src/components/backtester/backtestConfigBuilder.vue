@@ -2,7 +2,7 @@
   div
     dataset-picker.my2(v-on:dataset='updateDataset').contain
     .hr
-    strat-picker.my2(v-on:stratConfig='updateStrat').contain
+    strat-picker.my2(v-on:stratConfig='updateStrat', :candleSize='candleSize').contain
     .hr
     paper-trader(v-on:settings='updatePaperTrader').contain
     .hr
@@ -37,6 +37,12 @@ export default {
     paperTrader
   },
   computed: {
+    candleSize: function() {
+      if (!this.strat.tradingAdvisor)
+        return 0;
+
+      return this.strat.tradingAdvisor.candleSize;
+    },
     market: function() {
       if(!this.dataset.exchange)
         return {};
@@ -80,6 +86,7 @@ export default {
           }
         },
         { performanceAnalyzer: this.performanceAnalyzer },
+        { dataset: this.dataset }
       );
 
       config.valid = this.validConfig(config);
@@ -89,6 +96,7 @@ export default {
     }
   },
   methods: {
+    fmt: mom => moment.utc(mom).format('YYYY-MM-DD HH:mm'),
     validConfig: function(config) {
       if(!config.backtest)
         return false;
@@ -130,7 +138,7 @@ export default {
       this.paperTrader = pt;
       this.paperTrader.enabled = true;
       this.$emit('config', this.config);
-    },
+    }
   }
 }
 </script>

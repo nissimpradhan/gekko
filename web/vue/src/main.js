@@ -20,7 +20,7 @@ import singleGekko from './components/gekko/singleGekko.vue'
 import { connect as connectWS } from './components/global/ws'
 
 const router = new VueRouter({
-  mode: 'hash',
+  mode: 'history',
   base: __dirname,
   routes: [
     { path: '/', redirect: '/home' },

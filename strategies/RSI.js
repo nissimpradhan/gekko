@@ -42,7 +42,10 @@ method.log = function(candle) {
   log.debug('\t', 'price:', candle.close.toFixed(digits));
 }
 
-method.check = function() {
+method.update = function(candle) {
+  this.indicators.rsi.config = this.settings;
+}
+method.check = function(candle) {
   var rsi = this.indicators.rsi;
   var rsiVal = rsi.result;
 
@@ -59,7 +62,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In high since', this.trend.duration, 'candle(s)');
+    log.info('In high since', this.trend.duration, 'candle(s).. RSI:', rsiVal);
 
     if(this.trend.duration >= this.settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -67,6 +70,7 @@ method.check = function() {
     if(this.trend.persisted && !this.trend.adviced) {
       this.trend.adviced = true;
       this.advice('short');
+      log.info('Adviced Short: ', candle.close.toFixed(8));
     } else
       this.advice();
 
@@ -83,7 +87,7 @@ method.check = function() {
 
     this.trend.duration++;
 
-    log.debug('In low since', this.trend.duration, 'candle(s)');
+    log.info('In low since', this.trend.duration, 'candle(s).. RSI:', rsiVal);
 
     if(this.trend.duration >= this.settings.thresholds.persistence)
       this.trend.persisted = true;
@@ -91,6 +95,7 @@ method.check = function() {
     if(this.trend.persisted && !this.trend.adviced) {
       this.trend.adviced = true;
       this.advice('long');
+      log.info('Adviced Long: ', candle.close.toFixed(8));
     } else
       this.advice();
 

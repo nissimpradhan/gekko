@@ -1,6 +1,6 @@
 <script>
 
-import top from './components/layout/header.vue'
+import top from './components/layout/header2.vue'
 import bottom from './components/layout/footer.vue'
 import modal from './components/layout/modal.vue'
 

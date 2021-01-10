@@ -28,6 +28,7 @@ export default {
     }
   },
   methods: {
+    fmt: mom => moment.utc(mom).format('YYYY-MM-DD HH:mm'),
     check: function(config) {
       // console.log('CHECK', config);
       this.config = config;
@@ -39,8 +40,19 @@ export default {
     },
     run: function() {
       this.backtestState = 'fetching';
+      const req = {
+        gekkoConfig: this.config,
+        data: {
+          candleProps: ['close', 'start','open','high','low','volume'],
+          indicatorResults: true,
+          strategyResults: true,
+          report: true,
+          roundtrips: true,
+          trades: true
+        }
+      }
 
-      post('backtest', this.config, (error, response) => {
+      post('backtest', req, (error, response) => {
         this.backtestState = 'fetched';
         this.backtestResult = response;
       });
@@ -53,3 +65,11 @@ export default {
   }
 }
 </script>
+
+<style>
+.contain {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>

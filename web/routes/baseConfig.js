@@ -7,13 +7,19 @@ var config = {};
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 config.silent = false;
-config.debug = true;
+config.debug = false;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                       CONFIGURING TRADING ADVICE
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 config.tradingAdvisor = {
+}
+
+config.stop = {
+  enabled: false,
+  loss: 0.2,
+  type: 'fixed'
 }
 
 config.candleWriter = {
@@ -100,5 +106,90 @@ config.importer = {
     from: "2016-06-01 12:00:00"
   }
 }
+
+// MACD settings:
+config.MACD = {
+  // EMA weight (α)
+  // the higher the weight, the more smooth (and delayed) the line
+  short: 10,
+  long: 21,
+  signal: 9,
+  // the difference between the EMAs (to act as triggers)
+  thresholds: {
+    down: -0.025,
+    up: 0.025,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
+
+// PPO settings:
+config.PPO = {
+// EMA weight (α)
+  // the higher the weight, the more smooth (and delayed) the line
+  short: 12,
+  long: 26,
+  signal: 9,
+  // the difference between the EMAs (to act as triggers)
+  thresholds: {
+    down: -0.025,
+    up: 0.025,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 2
+  }
+};
+
+// Uses one of the momentum indicators but adjusts the thresholds when PPO is bullish or bearish
+// Uses settings from the ppo and momentum indicator config block
+config.varPPO = {
+  momentum: 'TSI', // RSI, TSI or UO
+  thresholds: {
+    // new threshold is default threshold + PPOhist * PPOweight
+    weightLow: 120,
+    weightHigh: -120,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 0
+  }
+};
+
+// RSI settings:
+config.RSI = {
+  interval: 14,
+  thresholds: {
+    low: 30,
+    high: 70,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
+
+// RSI settings:
+config.RSI_wait = {
+  interval: 14,
+  thresholds: {
+    low: 30,
+    high: 70,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
+
+// TSI settings:
+config.TSI = {
+  short: 13,
+  long: 25,
+  thresholds: {
+    low: -25,
+    high: 25,
+    // How many candle intervals should a trend persist
+    // before we consider it real?
+    persistence: 1
+  }
+};
 
 module.exports = config;

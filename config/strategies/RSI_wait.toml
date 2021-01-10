@@ -1,0 +1,28 @@
+interval = 14
+
+[thresholds]
+low = 35
+high = 65
+persistence = 2
+
+[stop]
+loss = 0.08
+type = 'trailing' #'trailing|fixed'
+
+# use candle size 5 min
+
+
+[macd]
+short = 10
+long = 21
+signal = 9
+down = -0.02
+up = 0.02
+persistence = 6
+
+[stochrsi]
+interval = 14
+rsi_interval = 14
+low = 20
+high = 80
+persistence = 3
