@@ -77,7 +77,7 @@ export default {
             enabled: true,
             writeToDisk: false,
             data: {
-              stratUpdates: false,
+              stratUpdates: true,
               roundtrips: true,
               stratCandles: true,
               // stratCandleProps: ['open'],

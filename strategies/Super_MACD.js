@@ -82,15 +82,22 @@ method.init = function() {
   this.addIndicator('info', 'INFO', {});
   this.addIndicator('stochrsi', 'STOCHRSI', this.settings.stochrsi);
 
+  /* For talib
   var customBBANDSettings = {
     optInTimePeriod: 20,
     optInNbDevUp: 2,
     optInNbDevDn: 2,
     optInMAType: 2
-  }
+  }*/
 
+  var customBBANDSettings = {
+    optInTimePeriod: 20,
+    optInNbStdDevs: 2
+  }
   // add the indicator to the strategy
-  this.addTalibIndicator('bbands', 'bbands', customBBANDSettings);
+  // this.addTalibIndicator('bbands', 'bbands', customBBANDSettings);
+  this.addTulipIndicator('bbands', 'bbands', customBBANDSettings);
+
 
   //this.addIndicator('ema', 'EMA', settings.emaWeight);
   //this.addIndicator('sma', 'SMA', settings.smaWeight);
@@ -106,8 +113,9 @@ method.update = function(candle) {
   var rsi = this.indicators.rsi;
   var stochrsi = this.indicators.stochrsi;
   var macd = this.indicators.macd;
-  var bbands = this.talibIndicators.bbands;
-  
+  // var bbands = this.talibIndicators.bbands;
+  var bbands = this.tulipIndicators.bbands;
+
   if(rsi.result == 0){
     return;
   }
@@ -121,14 +129,16 @@ method.update = function(candle) {
     if(percentage > -1){
       bbands.closeToBband = true;
     }
-    this.talibIndicators.bbands.result.percentageClose = percentage;
+    // this.talibIndicators.bbands.result.percentageClose = percentage;
+    this.tulipIndicators.bbands.result.percentageClose = percentage;
   } else {
     var diff = bbands.result.outRealLowerBand - candle.close;
     var percentage = diff/bbands.result.outRealLowerBand * 100;
     if(diff > -1){
       bbands.closeToBband = true;
     }
-    this.talibIndicators.bbands.result.percentageClose = percentage;
+    // this.talibIndicators.bbands.result.percentageClose = percentage;
+    this.tulipIndicators.bbands.result.percentageClose = percentage;
   }
 }
 
@@ -144,19 +154,19 @@ method.log = function(candle) {
 
 method.check = function(candle) {
 
-  
+
 }
 
 superMACDStrat = (ref,candle, macd, bbands) => {
   var macdVal = macd.result/macd.long.result*100; //percentage
-  //var macdVal = macd.result; 
+  //var macdVal = macd.result;
   var closeToBband = false;
 
   var DIFF_FOR_REVERSAL = 0.2;//3 for RSI 25 for stochRSI
 
   var macdDiff = macdVal - ref.trend.macd.lastMACD;
   if(ref.recommendation != "short" && ref.trend.macd.direction == 'high'  && macdDiff < (-1 * DIFF_FOR_REVERSAL)){
-    // check if RSI change direction and make sure it's not very little change.... 
+    // check if RSI change direction and make sure it's not very little change....
     // very little change implies it's still increasing, and will miss out on huge profits
     ref.trend.macd.trendReversed = true;
     log.info(candle.start.format() +' High Trend Reverse Confirmed at candle' + ref.trend.macd.duration + '!');
@@ -242,7 +252,7 @@ superMACDStrat = (ref,candle, macd, bbands) => {
           tooltip: 'Adviced Long:'+ candle.close.toFixed(8)
         });
       resetTrend(ref);
-    } 
+    }
   } else if((ref.trend.macd.direction == 'high' || ref.trend.macd.direction == 'low')){
     //Reset Trend
     // resetTrend(ref);
@@ -263,8 +273,8 @@ superMACDStrat = (ref,candle, macd, bbands) => {
 
 hasCrossedOver = function(lastMacd , macd_percentage, up, down){
   //only use with buy signal
-  // console.log("check1:"+ (macd_percentage > lastMacd) 
-  //           , "| check2:"+ (macd_percentage > down && macd_percentage < 0) 
+  // console.log("check1:"+ (macd_percentage > lastMacd)
+  //           , "| check2:"+ (macd_percentage > down && macd_percentage < 0)
   //           , "| check3:" +  (macd_percentage > 0));
   if(lastMacd == undefined) {// first tick after preadvice
     return ( (macd_percentage >= down && macd_percentage <= 0));// means macd almost close to zero;
@@ -273,7 +283,7 @@ hasCrossedOver = function(lastMacd , macd_percentage, up, down){
     && ( (macd_percentage > down && macd_percentage < 0) // means macd almost close to zero
     || (macd_percentage > 0)); // means macd crossed zero
   }
-  
+
 }
 hasCrossedUnder = function(lastMacd , macd_percentage, up, down){
   //only use with buy signal

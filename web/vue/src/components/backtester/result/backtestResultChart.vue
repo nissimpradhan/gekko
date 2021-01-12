@@ -1,34 +1,34 @@
 <template lang='pug'>
-div
-  div#resultHighchart
+  div
+    div#resultHighchart
 </template>
 
 <script>
 
-import _ from 'lodash'
-import Vue from 'vue'
-import * as Highcharts from 'highcharts/highstock'
-import * as HighchartsMore from 'highcharts/highcharts-more'
+import _ from 'lodash';
+import Vue from 'vue';
+import * as Highcharts from 'highcharts/highstock';
+import * as HighchartsMore from 'highcharts/highcharts-more';
 //import * as Highcharts from 'highcharts-more-node'
 
 // import { post } from '../../../tools/ajax'
 // import spinner from '../../global/blockSpinner.vue'
 // import dataset from '../../global/mixins/dataset'
-const colors = ["#7cb5ec", "#90ed7d", "#f7a35c", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", "#8085e9", "#f15c80"];
-const YAXIS_PRIMARY = 'primary'
-const YAXIS_SECONDARY = 'secondary'
+const colors = ['#7cb5ec', '#90ed7d', '#f7a35c', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1', '#8085e9', '#f15c80'];
+const YAXIS_PRIMARY = 'primary';
+const YAXIS_SECONDARY = 'secondary';
 
 const indicatorResultMapFunctions = {
   'talib-dema': (res) => [res.date * 1000, res.result.outReal],
   'macd-diff': (res) => [res.date * 1000, res.diff],
   'macd-signal': (res) => [res.date * 1000, res.signal],
-  'macd-percentage': (res) => [res.date * 1000, (res.result/res.ma)*100],
-  'bbands-upper': (res) => [res.date * 1000, res.result.outRealUpperBand],
-  'bbands-middle': (res) => [res.date * 1000, res.result.outRealMiddleBand],
-  'bbands-lower': (res) => [res.date * 1000, res.result.outRealLowerBand],
+  'macd-percentage': (res) => [res.date * 1000, (res.result / res.ma) * 100],
+  'bbands-upper': (res) => [res.date * 1000, res.result.bbandsUpper],
+  'bbands-middle': (res) => [res.date * 1000, res.result.bbandsMiddle],
+  'bbands-lower': (res) => [res.date * 1000, res.result.bbandsLower],
   'bbands-close-percentage': (res) => [res.date * 1000, res.result.percentageClose],
-  default: (res) => [res.date * 1000, res.result]
-}
+  default: (res) => [res.date * 1000, res.result],
+};
 
 function getIndicatorResultMapFunction(indicatorType) {
   if (indicatorResultMapFunctions.hasOwnProperty(indicatorType)) {
@@ -39,11 +39,11 @@ function getIndicatorResultMapFunction(indicatorType) {
 }
 
 // Types of indicators which should be drawn on the secondary yAxis
-const secondaryAxisIndicatorTypes = ['DEMA', 'CCI','RSI','MACD','STOCHRSI'];
+const secondaryAxisIndicatorTypes = ['DEMA', 'CCI', 'RSI', 'MACD', 'STOCHRSI'];
 
 const strategyResultMapFunctions = {
-  DDEMA: (res) => [moment(res.date).unix() * 1000, res.result]
-}
+  DDEMA: (res) => [moment(res.date).unix() * 1000, res.result],
+};
 
 export default {
   props: ['result'],
@@ -67,7 +67,7 @@ export default {
           renderTo: 'resultHighchart',
           //zoomType: 'x',
           height: 720,
-          ignoreHiddenSeries: true
+          ignoreHiddenSeries: true,
         },
         /*      rangeSelector: {
                 selected: 1
@@ -85,7 +85,7 @@ export default {
           verticalAlign: 'bottom',
           y: 0,
           shadow: false,
-          floating: false
+          floating: false,
         },
 
         rangeSelector: {
@@ -93,34 +93,34 @@ export default {
           buttons: [{
             type: 'day',
             count: 1,
-            text: '1d'
+            text: '1d',
           }, {
             type: 'week',
             count: 1,
-            text: '7d'
+            text: '7d',
           }, {
             type: 'month',
             count: 1,
-            text: '1m'
+            text: '1m',
           }, {
             type: 'month',
             count: 3,
-            text: '3m'
+            text: '3m',
           }, {
             type: 'year',
             count: 1,
-            text: '1y'
+            text: '1y',
           }, {
             type: 'ytd',
             count: 1,
-            text: 'YTD'
+            text: 'YTD',
           }, {
             type: 'all',
-            text: 'ALL'
+            text: 'ALL',
           }],
           selected: 6,
           inputEnabled: true,
-          enabled: true
+          enabled: true,
         },
 
         yAxis: [{ // Primary yAxis
@@ -130,13 +130,13 @@ export default {
           title: {
             text: `${this.result.market.asset}-${this.result.market.currency} Trades`,
             style: {
-              color: colors[0]
-            }
+              color: colors[0],
+            },
           },
           resize: {
-            enabled: true
-          }
-        }
+            enabled: true,
+          },
+        },
           //  ,
           //   {
           //       top: '80%',
@@ -158,8 +158,8 @@ export default {
           //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
           data: this.result.stratCandles.map((candle) => [candle.start * 1000, candle.open, candle.high, candle.low, candle.close]),
           color: colors[0],
-          type: 'candlestick'
-        }
+          type: 'candlestick',
+        },
           // ,{
           //       type: 'macd',
           //       yAxis: 1,
@@ -168,193 +168,223 @@ export default {
         ],
 
         tooltip: {
-          split:true,
-          shared:true
+          split: true,
+          shared: true,
         },
 
         plotOptions: {
           series: {
             animation: false,
             dataGrouping: {
-              enabled: false
+              enabled: false,
             },
-            turboThreshold:5000
+            turboThreshold: 5000,
           },
           line: {
             dataGrouping: {
-              enabled: false
-            }
-          }
-        }
+              enabled: false,
+            },
+          },
+        },
 
-      }
-    }
+      };
+    },
   },
-  mounted () {
-    console.log('backtest result chart mounted', this.result)
+  mounted() {
+    console.log('backtest result chart mounted', this.result);
     const chartOptions = this.getChartOptions();
 
     var primaryChartHeight = 100;
     var stopLossFlags;
     var infoFlags;
     // Add indicator results to chart
-    for (let name in this.result.indicatorResults) {
-      const indicator = this.result.indicatorResults[name]
+    var indicatorResults = {};
+    this.result.stratUpdates.forEach((stratUpdate) => {
+      /*{ "macd": {
+      *       talib: true
+      *       data: [{date:'xxx',result:23},
+      *              {date:'yyy',result:25}
+      * ]
+      *       params:
+      */
+      for (let name in stratUpdate.indicators) {
+        var result = stratUpdate.indicators[name];
+        if (indicatorResults[name]) {
+          indicatorResults[name].data.push({
+            date: stratUpdate.date,
+            result: result,
+          });
+        } else {
+          indicatorResults[name] = {
+            type: name.toUpperCase(),
+            data: [{
+                date: stratUpdate.date,
+                result: result,
+              }
+            ]
+          };
+        }
+      }
+    });
+    console.log('indicator result', indicatorResults);
+    for (let name in indicatorResults) {
+      const indicator = indicatorResults[name];
       const indicatorType = indicator.talib ? `talib-${indicator.type}` : indicator.type;
 
-      console.log(`add indicator result for type ${indicatorType}, name ${name}`)
-      console.log(`indicator details for ${name}:`,indicator)
+      console.log(`add indicator result for type ${indicatorType}, name ${name}`);
+      console.log(`indicator details for ${name}:`, indicator);
       //log.info(`add indicator result for type ${indicatorType}, name ${name}`)
       const resultMapFunction = getIndicatorResultMapFunction(indicatorType);
       const resultYAxis = secondaryAxisIndicatorTypes.indexOf(indicatorType) > -1 ? YAXIS_SECONDARY : YAXIS_PRIMARY;
       // indicatorResultYAxis[indicatorType] || indicatorResultYAxis.default
 
-      let displayName = name + (indicator.talib ? ` (talib ${indicator.type})` : ` (${indicator.type})`)
+      let displayName = name + (indicator.talib ? ` (talib ${indicator.type})` : ` (${indicator.type})`);
 
       const color = colors[chartOptions.series.length];
       const yAxisId = (resultYAxis == YAXIS_SECONDARY) ? `y${chartOptions.yAxis.length}` : resultYAxis;
       const seriesId = `s${chartOptions.series.length}`;
 
-      console.log(`indicator ${indicatorType} yAxisId ${yAxisId}`)
+      console.log(`indicator ${indicatorType} yAxisId ${yAxisId}`);
 
-      if( resultYAxis == YAXIS_SECONDARY ){
+      if (resultYAxis == YAXIS_SECONDARY) {
         //Add yAxis
         primaryChartHeight -= 17;
         chartOptions.yAxis.push({
           id: yAxisId,
           gridLineWidth: 0,
           opposite: false,
-          top: primaryChartHeight+"%",
+          top: primaryChartHeight + '%',
           height: '17%',
           title: {
             text: displayName,
             style: {
-              color: color
-            }
+              color: color,
+            },
           },
           resize: {
-            enabled: true
+            enabled: true,
           },
           plotLines: [{
-                value: name == "rsi" ? 50:0,
-                color: 'black',
-                dashStyle: 'solid',
-                width: 1,
-            }]
-        })
+            value: name == 'rsi' ? 50 : 0,
+            color: 'black',
+            dashStyle: 'solid',
+            width: 1,
+          }],
+        });
       }
 
-      if(name == "macd"){
-        chartOptions.series.push({
-                name: 'MACD-Diff',
-                id: seriesId,
-                data: indicator.data.map(getIndicatorResultMapFunction("macd-diff")),
-                yAxis: yAxisId,
-                lineWidth: 1,
-                color: "brown"
+      if (name == 'macd') {
+        /*chartOptions.series.push({
+          name: 'MACD-Diff',
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction('macd-diff')),
+          yAxis: yAxisId,
+          lineWidth: 1,
+          color: 'brown',
         });
         chartOptions.series.push({
-                name: 'MACD-Signal',
-                id: seriesId,
-                data: indicator.data.map(getIndicatorResultMapFunction("macd-signal")),
-                yAxis: yAxisId,
-                lineWidth: 1,
-                color: "red"
-        });
+          name: 'MACD-Signal',
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction('macd-signal')),
+          yAxis: yAxisId,
+          lineWidth: 1,
+          color: 'red',
+        });*/
         chartOptions.series.push({
-                type: "column",
-                name: 'MACD-result',
-                id: seriesId,
-                data: indicator.data.map(resultMapFunction),
-                yAxis: yAxisId,
-                color: color
+          type: 'column',
+          name: 'MACD-result',
+          id: seriesId,
+          data: indicator.data.map(resultMapFunction),
+          yAxis: yAxisId,
+          color: color,
         });
 
-        chartOptions.yAxis.push({
+        /*chartOptions.yAxis.push({
           id: yAxisId + 1,
           gridLineWidth: 0,
           opposite: true,
-          top: primaryChartHeight+"%",
+          top: primaryChartHeight + '%',
           height: '13%',
           offset: 2,
           title: {
-            text: "Percentage",
+            text: 'Percentage',
             style: {
-              color: color
-            }
+              color: color,
+            },
           },
           plotLines: [{
-                value: 0,
-                color: 'black',
-                dashStyle: 'solid',
-                width: 1,
-            }]
-        })
+            value: 0,
+            color: 'black',
+            dashStyle: 'solid',
+            width: 1,
+          }],
+        });*/
 
-        chartOptions.series.push({
-                name: 'MACD-Percentage',
-                id: seriesId,
-                data: indicator.data.map(getIndicatorResultMapFunction("macd-percentage")),
-                yAxis: yAxisId + 1,
-                color: color
-        });
+/*        chartOptions.series.push({
+          name: 'MACD-Percentage',
+          id: seriesId,
+          data: indicator.data.map(getIndicatorResultMapFunction('macd-percentage')),
+          yAxis: yAxisId + 1,
+          color: color,
+        });*/
 
-      } else if (name == "stoploss"){
-        stopLossFlags = indicator.data.filter((data) =>{
-            return data.result;
-          }).map((data) => {
-            return {
-              x: moment(data.date).unix() * 1000,
-              title: 'SL',
-              text: "Stop-loss"
-              //fillColor: isBuy ? 'lightgreen' : 'pink'
-            }
+      } else if (name == 'stoploss') {
+        stopLossFlags = indicator.data.filter((data) => {
+          return data.result;
+        }).map((data) => {
+          return {
+            x: moment(data.date).unix() * 1000,
+            title: 'SL',
+            text: 'Stop-loss',
+            //fillColor: isBuy ? 'lightgreen' : 'pink'
+          };
         });
-        console.log("Stoploss Flags",stopLossFlags);
-      } else if (name == "info"){
+        console.log('Stoploss Flags', stopLossFlags);
+      } else if (name == 'info') {
         //ar.reduce((r, e) => r.push(e+1, e+2) && r, []);
 
-        infoFlags = indicator.data.filter((data) =>{
-            return data.result.length != 0;
-          }).reduce((array,indicatorData) => {
-            indicatorData.result.map((msg)=>{
-              array.push({
-                x: moment(indicatorData.date).unix() * 1000,
-                title: msg.text,
-                text: msg.tooltip,
-                fillColor: 'lightyellow',
-                color:'gray'
-              });
-            })
-            return array;
-        },[]);
-        console.log("Info Flags",infoFlags);
-      } else if(name == "bbands"){
+        infoFlags = indicator.data.filter((data) => {
+          return data.result.length != 0;
+        }).reduce((array, indicatorData) => {
+          indicatorData.result.map((msg) => {
+            array.push({
+              x: moment(indicatorData.date).unix() * 1000,
+              title: msg.text,
+              text: msg.tooltip,
+              fillColor: 'lightyellow',
+              color: 'gray',
+            });
+          });
+          return array;
+        }, []);
+        console.log('Info Flags', infoFlags);
+      } else if (name == 'bbands') {
         // Add Indicator Series
         chartOptions.series.push({
-          name: displayName,
+          name: "bbandsUpper",
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction("bbands-upper")),
+          //data: indicator.data.map(getIndicatorResultMapFunction("bbands-upper")),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbandsUpper')),
           yAxis: yAxisId,
           lineWidth: 1,
-          color: color
-        })
+          color: color,
+        });
         chartOptions.series.push({
-          name: displayName,
+          name: "bbandsMiddle",
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction("bbands-middle")),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbandsMiddle')),
           yAxis: yAxisId,
           lineWidth: 1,
-          color: color
-        })
+          color: color,
+        });
         chartOptions.series.push({
-          name: displayName,
+          name: "bbandsLower",
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction("bbands-lower")),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbandsLower')),
           yAxis: yAxisId,
           lineWidth: 1,
-          color: color
-        })
+          color: color,
+        });
         //Add yAxis
         primaryChartHeight -= 17;
         var bband_yaxis = `y${chartOptions.yAxis.length}`;
@@ -362,33 +392,33 @@ export default {
           id: bband_yaxis,
           gridLineWidth: 0,
           opposite: false,
-          top: primaryChartHeight+"%",
+          top: primaryChartHeight + '%',
           height: '17%',
           title: {
             text: displayName,
             style: {
-              color: color
-            }
+              color: color,
+            },
           },
           resize: {
-            enabled: true
+            enabled: true,
           },
           plotLines: [{
-                value: name == "rsi" ? 50:0,
-                color: 'black',
-                dashStyle: 'solid',
-                width: 1,
-            }]
-        })
+            value: name == 'rsi' ? 50 : 0,
+            color: 'black',
+            dashStyle: 'solid',
+            width: 1,
+          }],
+        });
         chartOptions.series.push({
           name: displayName,
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction("bbands-close-percentage")),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbands-close-percentage')),
           yAxis: bband_yaxis,
           lineWidth: 1,
-          color: color
-        })
-      } else{
+          color: color,
+        });
+      } else {
         // Add Indicator Series
         chartOptions.series.push({
           name: displayName,
@@ -396,27 +426,27 @@ export default {
           data: indicator.data.map(resultMapFunction),
           yAxis: yAxisId,
           lineWidth: 1,
-          color: color
-        })
+          color: color,
+        });
       }
 
 
       //console.log("series:",chartOptions.series[chartOptions.series.length - 1]);
-      if(name == "rsi"){
+      if (name == 'rsi') {
 
-        chartOptions.yAxis[chartOptions.yAxis.length -1].plotBands = [{
-                from: indicator.params.thresholds.low,
-                to: indicator.params.thresholds.high,
-                color: 'rgba(68, 170, 213, 0.2)'
+        chartOptions.yAxis[chartOptions.yAxis.length - 1].plotBands = [{
+          from: this.result.strategyParameters.thresholds.low,
+          to: this.result.strategyParameters.thresholds.high,
+          color: 'rgba(68, 170, 213, 0.2)',
         }];
       }
     }
-    console.log("height:",primaryChartHeight);
-    chartOptions.yAxis[0].height = primaryChartHeight+"%";
+    console.log('height:', primaryChartHeight);
+    chartOptions.yAxis[0].height = primaryChartHeight + '%';
     // Add strategy results to chart
     let stratResultSeriesId;
 
-    console.log("Strategy Result",this.result.strategyResults);
+    console.log('Strategy Result', this.result.strategyResults);
     // for (let name in this.result.strategyResults) {
     //   const displayName = `${name} strategy result`;
     //   const color = colors[chartOptions.yAxis.length];
@@ -455,14 +485,14 @@ export default {
     // Add Buy/Sell Flags
     const buySellFlags = this.result.trades.map((trade) => {
       const isBuy = trade.action === 'buy';
-      let texta = isBuy ? `Buy for ${trade.price}` : `Sell for ${trade.price}`
+      let texta = isBuy ? `Buy for ${trade.price}` : `Sell for ${trade.price}`;
       return {
         x: trade.date * 1000,
         title: isBuy ? 'B' : 'S',
         text: texta,
-        fillColor: isBuy ? 'lightgreen' : 'pink'
-      }
-    })
+        fillColor: isBuy ? 'lightgreen' : 'pink',
+      };
+    });
     const flagSeriesId = `f${chartOptions.yAxis.length}`;
     chartOptions.series.push({
       type: 'flags',
@@ -471,27 +501,27 @@ export default {
       //data: buySellFlags.concat(stopLossFlags).concat(infoFlags),
       data: buySellFlags.concat(stopLossFlags),
       onSeries: 'trades',
-      stackDistance:25
+      stackDistance: 25,
       // onSeries: stratResultSeriesId,
       // color: stratInstance.highcharts.color,
       // fillColor: stratInstance.highcharts.color
-    })
+    });
     const infoFlagSeriesId = `f${chartOptions.series.length}`;
     chartOptions.series.push({
       type: 'flags',
       name: 'Flags',
       id: infoFlagSeriesId,
       data: infoFlags,
-      stackDistance:25,
+      stackDistance: 25,
       onSeries: 'trades',
-      visible:false,
-      y:-60
+      visible: false,
+      y: -60,
       // onSeries: stratResultSeriesId,
       // color: stratInstance.highcharts.color,
       // fillColor: stratInstance.highcharts.color
-    })
+    });
 
-    this.chart = Highcharts.stockChart(chartOptions)
+    this.chart = Highcharts.stockChart(chartOptions);
 
   },
   watch: {
@@ -507,15 +537,16 @@ export default {
     // customFrom: function() { this.emitSet(this.set); },
     // importCandleSize: function() { this.emitSet(this.set); },
     // importCandleSizeUnit: function() { this.emitSet(this.set); }
-  }
-}
+  },
+};
 
 </script>
 <style>
 td.radio {
   width: 45px;
 }
-td label{
+
+td label {
   display: inline;
   font-size: 1em;
 }
