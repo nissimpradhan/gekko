@@ -19,15 +19,15 @@ const YAXIS_PRIMARY = 'primary'
 const YAXIS_SECONDARY = 'secondary'
 
 const indicatorResultMapFunctions = {
-  'talib-dema': (res) => [moment(res.date).unix() * 1000, res.result.outReal],
-  'macd-diff': (res) => [moment(res.date).unix() * 1000, res.diff],
-  'macd-signal': (res) => [moment(res.date).unix() * 1000, res.signal],
-  'macd-percentage': (res) => [moment(res.date).unix() * 1000, (res.result/res.ma)*100],
-  'bbands-upper': (res) => [moment(res.date).unix() * 1000, res.result.outRealUpperBand],
-  'bbands-middle': (res) => [moment(res.date).unix() * 1000, res.result.outRealMiddleBand],
-  'bbands-lower': (res) => [moment(res.date).unix() * 1000, res.result.outRealLowerBand],
-  'bbands-close-percentage': (res) => [moment(res.date).unix() * 1000, res.result.percentageClose],
-  default: (res) => [moment(res.date).unix() * 1000, res.result]
+  'talib-dema': (res) => [res.date * 1000, res.result.outReal],
+  'macd-diff': (res) => [res.date * 1000, res.diff],
+  'macd-signal': (res) => [res.date * 1000, res.signal],
+  'macd-percentage': (res) => [res.date * 1000, (res.result/res.ma)*100],
+  'bbands-upper': (res) => [res.date * 1000, res.result.outRealUpperBand],
+  'bbands-middle': (res) => [res.date * 1000, res.result.outRealMiddleBand],
+  'bbands-lower': (res) => [res.date * 1000, res.result.outRealLowerBand],
+  'bbands-close-percentage': (res) => [res.date * 1000, res.result.percentageClose],
+  default: (res) => [res.date * 1000, res.result]
 }
 
 function getIndicatorResultMapFunction(indicatorType) {
@@ -60,24 +60,22 @@ export default {
     // humanizeDuration: (n) => {
     //   return window.humanizeDuration(n, {largest: 4});
     // },
-    humanizeTimestamp: timestamp => moment.utc(timestamp).format('YYYY-MM-DD HH:mm')
-  },
-  mounted () {
-    console.log('backtest result chart mounted', this.result)
-    const chartOptions = {
-      chart: {
-        renderTo: 'resultHighchart',
-        //zoomType: 'x',
-        height: 720,
-        ignoreHiddenSeries: true
-      },
-/*      rangeSelector: {
-        selected: 1
-      },*/
-      title: {
-        // text: `${this.dataset.asset}-${this.dataset.currency} Trades`
-      },
-      legend: {
+    humanizeTimestamp: timestamp => moment.utc(timestamp).format('YYYY-MM-DD HH:mm'),
+    getChartOptions() {
+      return {
+        chart: {
+          renderTo: 'resultHighchart',
+          //zoomType: 'x',
+          height: 720,
+          ignoreHiddenSeries: true
+        },
+        /*      rangeSelector: {
+                selected: 1
+              },*/
+        title: {
+          // text: `${this.dataset.asset}-${this.dataset.currency} Trades`
+        },
+        legend: {
           enabled: true,
           align: 'center',
           backgroundColor: '#FFFFFF',
@@ -88,108 +86,113 @@ export default {
           y: 0,
           shadow: false,
           floating: false
-      },
+        },
 
-      rangeSelector: {
+        rangeSelector: {
           allButtonsEnabled: true,
           buttons: [{
-              type: 'day',
-              count: 1,
-              text: '1d'
+            type: 'day',
+            count: 1,
+            text: '1d'
           }, {
-              type: 'week',
-              count: 1,
-              text: '7d'
+            type: 'week',
+            count: 1,
+            text: '7d'
           }, {
-              type: 'month',
-              count: 1,
-              text: '1m'
+            type: 'month',
+            count: 1,
+            text: '1m'
           }, {
-              type: 'month',
-              count: 3,
-              text: '3m'
+            type: 'month',
+            count: 3,
+            text: '3m'
           }, {
-              type: 'year',
-              count: 1,
-              text: '1y'
+            type: 'year',
+            count: 1,
+            text: '1y'
           }, {
-              type: 'ytd',
-              count: 1,
-              text: 'YTD'
+            type: 'ytd',
+            count: 1,
+            text: 'YTD'
           }, {
-              type: 'all',
-              text: 'ALL'
+            type: 'all',
+            text: 'ALL'
           }],
           selected: 6,
           inputEnabled: true,
           enabled: true
-      },
-
-      yAxis: [{ // Primary yAxis
-        opposite: true,
-        height: '100%',
-        id: YAXIS_PRIMARY,
-        title: {
-          text: `${this.result.performanceReport.asset}-${this.result.performanceReport.currency} Trades`,
-          style: {
-            color: colors[0]
-          }
         },
-        resize: {
-          enabled: true
-        }
-       }
-      //  ,
-      //   {
-      //       top: '80%',
-      //       height: '20%',
-      //       labels: {
-      //           align: 'right',
-      //           x: -3
-      //       },
-      //       offset: 0,
-      //       title: {
-      //           text: 'MACD'
-      //       }
-      //   }
-      ],
 
-      series: [{
-        name: `${this.result.performanceReport.asset}-${this.result.performanceReport.currency}`,
-        id: 'trades',
-        //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
-        data: this.result.stratCandles.map((candle) => [moment(candle.start).unix() * 1000, candle.open, candle.high, candle.low, candle.close]),
-        color: colors[0],
-        type: 'candlestick'
-      }
-      // ,{
-      //       type: 'macd',
-      //       yAxis: 1,
-      //       linkedTo: "trades"
-      // }
-      ],
-
-      tooltip: {
-        split:true,
-        shared:true
-      },
-
-      plotOptions: {
-        series: {
-          animation: false,
-          dataGrouping: {
-            enabled: false
+        yAxis: [{ // Primary yAxis
+          opposite: true,
+          height: '100%',
+          id: YAXIS_PRIMARY,
+          title: {
+            text: `${this.result.market.asset}-${this.result.market.currency} Trades`,
+            style: {
+              color: colors[0]
+            }
           },
-          turboThreshold:5000
-        },
-        line: {
-          dataGrouping: {
-            enabled: false
+          resize: {
+            enabled: true
           }
         }
-      }
+          //  ,
+          //   {
+          //       top: '80%',
+          //       height: '20%',
+          //       labels: {
+          //           align: 'right',
+          //           x: -3
+          //       },
+          //       offset: 0,
+          //       title: {
+          //           text: 'MACD'
+          //       }
+          //   }
+        ],
 
+        series: [{
+          name: `${this.result.market.asset}-${this.result.market.currency}`,
+          id: 'trades',
+          //data: this.result.candles.map((candle) => [moment(candle.start).unix() * 1000, candle.close]),
+          data: this.result.stratCandles.map((candle) => [candle.start * 1000, candle.open, candle.high, candle.low, candle.close]),
+          color: colors[0],
+          type: 'candlestick'
+        }
+          // ,{
+          //       type: 'macd',
+          //       yAxis: 1,
+          //       linkedTo: "trades"
+          // }
+        ],
+
+        tooltip: {
+          split:true,
+          shared:true
+        },
+
+        plotOptions: {
+          series: {
+            animation: false,
+            dataGrouping: {
+              enabled: false
+            },
+            turboThreshold:5000
+          },
+          line: {
+            dataGrouping: {
+              enabled: false
+            }
+          }
+        }
+
+      }
     }
+  },
+  mounted () {
+    console.log('backtest result chart mounted', this.result)
+    const chartOptions = this.getChartOptions();
 
     var primaryChartHeight = 100;
     var stopLossFlags;
@@ -454,7 +457,7 @@ export default {
       const isBuy = trade.action === 'buy';
       let texta = isBuy ? `Buy for ${trade.price}` : `Sell for ${trade.price}`
       return {
-        x: moment(trade.date).unix() * 1000,
+        x: trade.date * 1000,
         title: isBuy ? 'B' : 'S',
         text: texta,
         fillColor: isBuy ? 'lightgreen' : 'pink'
@@ -506,6 +509,7 @@ export default {
     // importCandleSizeUnit: function() { this.emitSet(this.set); }
   }
 }
+
 </script>
 <style>
 td.radio {

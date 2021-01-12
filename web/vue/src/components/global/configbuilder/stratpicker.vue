@@ -8,7 +8,7 @@
         .custom-select.button
           select(v-model='strategy')
             option(v-for='strat in strategies') {{ strat.name }}
-      div(style='display:none;')
+      div
         label(for='candleSize') Candle Size
         .grd-row
           .grd-row-col-3-6
