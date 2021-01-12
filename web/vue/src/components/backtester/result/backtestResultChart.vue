@@ -364,7 +364,7 @@ export default {
           name: "bbandsUpper",
           id: seriesId,
           //data: indicator.data.map(getIndicatorResultMapFunction("bbands-upper")),
-          data: indicator.data.map(getIndicatorResultMapFunction('bbandsUpper')),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbands-upper')),
           yAxis: yAxisId,
           lineWidth: 1,
           color: color,
@@ -372,7 +372,7 @@ export default {
         chartOptions.series.push({
           name: "bbandsMiddle",
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction('bbandsMiddle')),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbands-middle')),
           yAxis: yAxisId,
           lineWidth: 1,
           color: color,
@@ -380,7 +380,7 @@ export default {
         chartOptions.series.push({
           name: "bbandsLower",
           id: seriesId,
-          data: indicator.data.map(getIndicatorResultMapFunction('bbandsLower')),
+          data: indicator.data.map(getIndicatorResultMapFunction('bbands-lower')),
           yAxis: yAxisId,
           lineWidth: 1,
           color: color,
